@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Richieste Iscrizione - ASD Pi8 Running{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-3xl font-bold text-pi8-blue">📋 Richieste di Iscrizione</h1>
+    <p class="text-gray-500 mt-1">Gestisci le nuove richieste di tesseramento</p>
+</div>
+
+{% set pendenti = richieste|selectattr('stato', 'equalto', 'in_attesa')|list %}
+{% set gestite = richieste|rejectattr('stato', 'equalto', 'in_attesa')|list %}
+
+<!-- Richieste Pendenti -->
+{% if pendenti %}
+<h2 class="text-lg font-bold text-gray-800 mb-3">⏳ In Attesa ({{ pendenti|length }})</h2>
+<div class="space-y-4 mb-8">
+    {% for r in pendenti %}
+    <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-pi8-yellow">
+        <div class="flex justify-between items-start">
+            <div>
+                <h3 class="font-bold text-lg">{{ r.cognome }} {{ r.nome }}</h3>
+                <span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{{ r.agonista or 'AGONISTA' }} &middot; {{ r.tipo_movimento or 'Nuovo' }}</span>
+                <div class="text-sm text-gray-600 mt-2 space-y-1">
+                    <p>📅 Data nascita: {{ r.data_nascita|data_it }} &middot; 📍 {{ r.luogo_nascita }}</p>
+                    <p>🪪 CF: {{ r.codice_fiscale }}</p>
+                    <p>📧 {{ r.email }} &middot; 📱 {{ r.cellulare }}{% if r.telefono %} &middot; ☎️ {{ r.telefono }}{% endif %}</p>
+                    <p>🏠 {{ r.indirizzo }}, {{ r.cap }} {{ r.citta }} ({{ r.provincia }})</p>
+                    {% if r.iban %}<p>🏦 IBAN: {{ r.iban }}</p>{% endif %}
+                    {% if r.professione %}<p>💼 {{ r.professione }}{% if r.titolo_studio %} &middot; {{ r.titolo_studio }}{% endif %}</p>{% endif %}
+                    <p>🌍 Nazione gara: {{ r.nazione_gara or 'ITALIA' }}{% if r.straniero %} &middot; Straniero{% endif %}{% if r.doppia_cittadinanza %} &middot; Doppia cittadinanza{% endif %}</p>
+                    {% if r.data_scadenza_certificato %}<p>🏥 Certificato medico scade: {{ r.data_scadenza_certificato|data_it }}</p>{% endif %}
+                    <p>👕 Taglia: {{ r.taglia_maglia or 'Non specificata' }}</p>
+                    {% if r.note %}<p>📝 {{ r.note }}</p>{% endif %}
+                </div>
+                <p class="text-xs text-gray-400 mt-2">Richiesta del {{ r.data_richiesta|data_it }}</p>
+            </div>
+            <div class="flex space-x-2">
+                <form method="POST" action="{{ url_for('admin.approva_richiesta', richiesta_id=r.id) }}">
+                    <button type="submit"
+                            class="bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-600 transition">
+                        ✓ Approva
+                    </button>
+                </form>
+                <form method="POST" action="{{ url_for('admin.rifiuta_richiesta', richiesta_id=r.id) }}"
+                      onsubmit="return confirm('Sei sicuro di voler rifiutare questa richiesta?');">
+                    <button type="submit"
+                            class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition">
+                        ✗ Rifiuta
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="bg-white rounded-xl shadow p-8 text-center text-gray-400 mb-8">
+    <p>Nessuna richiesta in attesa. 🎉</p>
+</div>
+{% endif %}
+
+<!-- Richieste Gestite -->
+{% if gestite %}
+<h2 class="text-lg font-bold text-gray-800 mb-3">📁 Storico</h2>
+<div class="bg-white rounded-xl shadow-md overflow-hidden">
+    <table class="w-full text-sm">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-4 py-3 text-left font-medium text-gray-500">Nome</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-500">Email</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-500">Data Richiesta</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-500">Stato</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+            {% for r in gestite %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3 font-medium">{{ r.cognome }} {{ r.nome }}</td>
+                <td class="px-4 py-3">{{ r.email }}</td>
+                <td class="px-4 py-3">{{ r.data_richiesta|data_it }}</td>
+                <td class="px-4 py-3">
+                    {% if r.stato == 'approvata' %}
+                    <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs">Approvata</span>
+                    {% else %}
+                    <span class="bg-red-100 text-red-800 px-2 py-0.5 rounded text-xs">Rifiutata</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

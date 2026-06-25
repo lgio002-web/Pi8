@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Admin - ASD Pi8 Running{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-pi8-blue">📊 Dashboard Amministratore</h1>
+    <p class="text-gray-500 mt-1">Panoramica generale del portale</p>
+</div>
+
+<!-- Stats Cards -->
+<div class="grid md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-pi8-blue">
+        <p class="text-gray-500 text-sm">Atleti Totali</p>
+        <p class="text-3xl font-bold text-pi8-blue mt-1">{{ totale_atleti }}</p>
+    </div>
+    <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+        <p class="text-gray-500 text-sm">Atleti Attivi</p>
+        <p class="text-3xl font-bold text-green-600 mt-1">{{ atleti_attivi }}</p>
+    </div>
+    <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-pi8-yellow">
+        <p class="text-gray-500 text-sm">Gare</p>
+        <p class="text-3xl font-bold text-pi8-yellow-dark mt-1">{{ totale_gare }}</p>
+    </div>
+    <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-red-400">
+        <p class="text-gray-500 text-sm">Richieste Pendenti</p>
+        <p class="text-3xl font-bold text-red-500 mt-1">{{ richieste_pendenti }}</p>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="bg-white rounded-xl shadow-md p-6">
+    <h2 class="text-lg font-bold text-gray-800 mb-4">⚡ Azioni Rapide</h2>
+    <div class="grid md:grid-cols-3 gap-4">
+        <a href="{{ url_for('gare.crea') }}"
+           class="flex items-center space-x-3 bg-pi8-blue-light rounded-lg p-4 hover:bg-blue-100 transition">
+            <span class="text-2xl">🏁</span>
+            <span class="font-medium text-pi8-blue">Crea Nuova Gara</span>
+        </a>
+        <a href="{{ url_for('admin.atleti') }}"
+           class="flex items-center space-x-3 bg-pi8-yellow-light rounded-lg p-4 hover:bg-yellow-100 transition">
+            <span class="text-2xl">👥</span>
+            <span class="font-medium text-pi8-blue-dark">Gestisci Atleti</span>
+        </a>
+        <a href="{{ url_for('admin.richieste') }}"
+           class="flex items-center space-x-3 bg-red-50 rounded-lg p-4 hover:bg-red-100 transition">
+            <span class="text-2xl">📋</span>
+            <span class="font-medium text-red-700">Richieste Iscrizione ({{ richieste_pendenti }})</span>
+        </a>
+    </div>
+</div>
+{% endblock %}

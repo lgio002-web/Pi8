@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Modifica Gara - ASD Pi8 Running{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="mb-4">
+        <a href="{{ url_for('gare.dettaglio', gara_id=gara.id) }}" class="text-pi8-blue hover:underline text-sm">← Torna al dettaglio</a>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-xl p-8 border-t-4 border-pi8-yellow">
+        <h1 class="text-2xl font-bold text-pi8-blue mb-6">✏️ Modifica Gara</h1>
+
+        <form method="POST" action="{{ url_for('gare.modifica', gara_id=gara.id) }}" class="space-y-5">
+            <div>
+                <label for="nome_gara" class="block text-sm font-medium text-gray-700 mb-1">Nome Gara *</label>
+                <input type="text" id="nome_gara" name="nome_gara" required
+                       value="{{ gara.nome_gara }}"
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pi8-blue focus:border-transparent">
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <label for="data_gara" class="block text-sm font-medium text-gray-700 mb-1">Data Gara *</label>
+                    <input type="date" id="data_gara" name="data_gara" required
+                           value="{{ gara.data_gara.strftime('%Y-%m-%d') }}"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pi8-blue focus:border-transparent">
+                </div>
+                <div>
+                    <label for="data_ultima_iscrizione" class="block text-sm font-medium text-gray-700 mb-1">Iscrizioni Entro *</label>
+                    <input type="date" id="data_ultima_iscrizione" name="data_ultima_iscrizione" required
+                           value="{{ gara.data_ultima_iscrizione.strftime('%Y-%m-%d') }}"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pi8-blue focus:border-transparent">
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <label for="distanza" class="block text-sm font-medium text-gray-700 mb-1">Distanza *</label>
+                    <select id="distanza" name="distanza" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pi8-blue focus:border-transparent"
+                            onchange="toggleAltro(this)">
+                        <option value="5km" {% if gara.distanza == '5km' %}selected{% endif %}>5 km</option>
+                        <option value="10km" {% if gara.distanza == '10km' %}selected{% endif %}>10 km</option>
+                        <option value="Mezza Maratona" {% if gara.distanza == 'Mezza Maratona' %}selected{% endif %}>Mezza Maratona</option>
+                        <option value="Maratona" {% if gara.distanza == 'Maratona' %}selected{% endif %}>Maratona</option>
+                        <option value="Altro" {% if gara.distanza == 'Altro' %}selected{% endif %}>Altro...</option>
+                    </select>
+                </div>
+                <div id="distanza_altro_wrapper" class="{% if gara.distanza != 'Altro' %}hidden{% endif %}">
+                    <label for="distanza_altro" class="block text-sm font-medium text-gray-700 mb-1">Specifica distanza</label>
+                    <input type="text" id="distanza_altro" name="distanza_altro"
+                           value="{{ gara.distanza_altro or '' }}"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pi8-blue focus:border-transparent">
+                </div>
+                <div>
+                    <label for="costo" class="block text-sm font-medium text-gray-700 mb-1">Costo (€)</label>
+                    <input type="text" id="costo" name="costo"
+                           value="{{ gara.costo }}"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pi8-blue focus:border-transparent">
+                </div>
+            </div>
+
+            <div>
+                <label for="note" class="block text-sm font-medium text-gray-700 mb-1">Note</label>
+                <textarea id="note" name="note" rows="3"
+                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pi8-blue focus:border-transparent">{{ gara.note or '' }}</textarea>
+            </div>
+
+            <button type="submit"
+                    class="w-full bg-pi8-blue text-white py-3 rounded-lg font-medium hover:bg-pi8-blue-dark transition shadow-md">
+                Salva Modifiche
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleAltro(select) {
+    const wrapper = document.getElementById('distanza_altro_wrapper');
+    if (select.value === 'Altro') {
+        wrapper.classList.remove('hidden');
+    } else {
+        wrapper.classList.add('hidden');
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Nuova Gara - ASD Pi8 Running{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="mb-4">
+        <a href="{{ url_for('gare.lista') }}" class="text-pi8-blue hover:underline text-sm">← Torna alla lista</a>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-xl p-8 border-t-4 border-pi8-yellow">
+        <h1 class="text-2xl font-bold text-pi8-blue mb-6">➕ Nuova Gara</h1>
+
+        <form method="POST" action="{{ url_for('gare.crea') }}" class="space-y-5">
+            <div>
+                <label for="nome_gara" class="block text-sm font-medium text-gray-700 mb-1">Nome Gara *</label>
+                <input type="text" id="nome_gara" name="nome_gara" required
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pi8-blue focus:border-transparent"
+                       placeholder="Es. Maratona del Salento">
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <label for="data_gara" class="block text-sm font-medium text-gray-700 mb-1">Data Gara *</label>
+                    <input type="date" id="data_gara" name="data_gara" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pi8-blue focus:border-transparent">
+                </div>
+                <div>
+                    <label for="data_ultima_iscrizione" class="block text-sm font-medium text-gray-700 mb-1">Iscrizioni Entro *</label>
+                    <input type="date" id="data_ultima_iscrizione" name="data_ultima_iscrizione" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pi8-blue focus:border-transparent">
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <label for="distanza" class="block text-sm font-medium text-gray-700 mb-1">Distanza *</label>
+                    <select id="distanza" name="distanza" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pi8-blue focus:border-transparent"
+                            onchange="toggleAltro(this)">
+                        <option value="">Seleziona...</option>
+                        <option value="5km">5 km</option>
+                        <option value="10km">10 km</option>
+                        <option value="Mezza Maratona">Mezza Maratona</option>
+                        <option value="Maratona">Maratona</option>
+                        <option value="Altro">Altro...</option>
+                    </select>
+                </div>
+                <div id="distanza_altro_wrapper" class="hidden">
+                    <label for="distanza_altro" class="block text-sm font-medium text-gray-700 mb-1">Specifica distanza</label>
+                    <input type="text" id="distanza_altro" name="distanza_altro"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pi8-blue focus:border-transparent"
+                           placeholder="Es. 15km trail">
+                </div>
+                <div id="costo_wrapper">
+                    <label for="costo" class="block text-sm font-medium text-gray-700 mb-1">Costo (€)</label>
+                    <input type="text" id="costo" name="costo"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pi8-blue focus:border-transparent"
+                           placeholder="0" value="0">
+                </div>
+            </div>
+
+            <div>
+                <label for="note" class="block text-sm font-medium text-gray-700 mb-1">Note</label>
+                <textarea id="note" name="note" rows="3"
+                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pi8-blue focus:border-transparent"
+                          placeholder="Informazioni aggiuntive sulla gara..."></textarea>
+            </div>
+
+            <button type="submit"
+                    class="w-full bg-pi8-blue text-white py-3 rounded-lg font-medium hover:bg-pi8-blue-dark transition shadow-md">
+                Crea Gara
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleAltro(select) {
+    const wrapper = document.getElementById('distanza_altro_wrapper');
+    if (select.value === 'Altro') {
+        wrapper.classList.remove('hidden');
+    } else {
+        wrapper.classList.add('hidden');
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Gare - ASD Pi8 Running{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-pi8-blue">🏁 Gare</h1>
+    {% if current_user.is_admin %}
+    <a href="{{ url_for('gare.crea') }}"
+       class="bg-pi8-yellow text-pi8-blue-dark px-5 py-2 rounded-lg font-medium hover:bg-yellow-400 transition shadow">
+        + Nuova Gara
+    </a>
+    {% endif %}
+</div>
+
+{% if gare %}
+<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    {% for gara in gare %}
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition border border-gray-100 overflow-hidden">
+        <!-- Header della card -->
+        <div class="bg-pi8-blue px-5 py-3 flex justify-between items-center">
+            <span class="text-white font-medium text-sm">{{ gara.data_gara|data_it }}</span>
+            <span class="bg-pi8-yellow text-pi8-blue-dark text-xs font-bold px-2 py-1 rounded">
+                {{ gara.distanza_display }}
+            </span>
+        </div>
+
+        <!-- Body -->
+        <div class="p-5">
+            <h3 class="text-lg font-bold text-gray-800 mb-2">{{ gara.nome_gara }}</h3>
+
+            <div class="space-y-1 text-sm text-gray-600">
+                {% if gara.costo > 0 %}
+                <p>💰 Costo: <span class="font-medium">{{ gara.costo|euro }}</span></p>
+                {% else %}
+                <p>💰 <span class="text-green-600 font-medium">Gratuita</span></p>
+                {% endif %}
+                <p>📅 Iscrizioni entro: <span class="font-medium">{{ gara.data_ultima_iscrizione|data_it }}</span></p>
+                <p>👥 Iscritti: <span class="font-medium">{{ gara.iscrizioni|length }}</span></p>
+            </div>
+
+            <!-- Stato iscrizioni -->
+            {% if not gara.iscrizioni_aperte %}
+            <div class="mt-3 bg-red-50 text-red-700 text-xs font-medium px-3 py-1 rounded-full inline-block">
+                Iscrizioni chiuse
+            </div>
+            {% else %}
+            <div class="mt-3 bg-green-50 text-green-700 text-xs font-medium px-3 py-1 rounded-full inline-block">
+                Iscrizioni aperte
+            </div>
+            {% endif %}
+
+            <!-- Badge iscritto -->
+            {% if not current_user.is_admin and gara.id in iscrizioni_atleta %}
+            <div class="mt-2 bg-pi8-blue-light text-pi8-blue text-xs font-medium px-3 py-1 rounded-full inline-block">
+                ✓ Sei iscritto
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Footer con azione -->
+        <div class="px-5 pb-4">
+            <a href="{{ url_for('gare.dettaglio', gara_id=gara.id) }}"
+               class="block text-center bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-pi8-blue-light hover:text-pi8-blue transition text-sm font-medium">
+                Dettagli →
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-16 bg-white rounded-xl shadow">
+    <p class="text-gray-400 text-lg">Nessuna gara disponibile al momento.</p>
+    {% if current_user.is_admin %}
+    <a href="{{ url_for('gare.crea') }}" class="mt-4 inline-block text-pi8-blue hover:underline">Crea la prima gara →</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

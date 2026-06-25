@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% block title %}{{ gara.nome_gara }} - ASD Pi8 Running{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{{ url_for('gare.lista') }}" class="text-pi8-blue hover:underline text-sm">← Torna alla lista gare</a>
+</div>
+
+<div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+    <!-- Header -->
+    <div class="bg-pi8-blue px-8 py-6">
+        <div class="flex justify-between items-start">
+            <div>
+                <h1 class="text-2xl font-bold text-white">{{ gara.nome_gara }}</h1>
+                <p class="text-blue-200 mt-1">{{ gara.data_gara|data_it }} &middot; {{ gara.distanza_display }}</p>
+            </div>
+            {% if current_user.is_admin %}
+            <div class="flex space-x-2">
+                <a href="{{ url_for('gare.modifica', gara_id=gara.id) }}"
+                   class="bg-pi8-yellow text-pi8-blue-dark px-4 py-2 rounded-lg text-sm font-medium hover:bg-yellow-300 transition">
+                    ✏️ Modifica
+                </a>
+                <form method="POST" action="{{ url_for('gare.elimina', gara_id=gara.id) }}"
+                      onsubmit="return confirm('Sei sicuro di voler eliminare questa gara?');">
+                    <button type="submit"
+                            class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition">
+                        🗑️ Elimina
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Dettagli -->
+    <div class="p-8">
+        <div class="grid md:grid-cols-2 gap-6 mb-8">
+            <div class="space-y-3">
+                <div class="flex items-center space-x-2">
+                    <span class="text-gray-500 w-40">📅 Data gara:</span>
+                    <span class="font-medium">{{ gara.data_gara|data_it }}</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-gray-500 w-40">🏃 Distanza:</span>
+                    <span class="font-medium">{{ gara.distanza_display }}</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-gray-500 w-40">💰 Costo:</span>
+                    <span class="font-medium">{% if gara.costo > 0 %}{{ gara.costo|euro }}{% else %}Gratuita{% endif %}</span>
+                </div>
+            </div>
+            <div class="space-y-3">
+                <div class="flex items-center space-x-2">
+                    <span class="text-gray-500 w-40">⏰ Iscrizioni entro:</span>
+                    <span class="font-medium">{{ gara.data_ultima_iscrizione|data_it }}</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-gray-500 w-40">👥 Iscritti:</span>
+                    <span class="font-medium">{{ iscrizioni|length }}</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-gray-500 w-40">📌 Stato:</span>
+                    {% if gara.iscrizioni_aperte %}
+                    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">Aperte</span>
+                    {% else %}
+                    <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">Chiuse</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if gara.note %}
+        <div class="bg-gray-50 rounded-lg p-4 mb-8">
+            <h3 class="text-sm font-medium text-gray-500 mb-1">Note</h3>
+            <p class="text-gray-700">{{ gara.note }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Azioni Atleta -->
+        {% if not current_user.is_admin %}
+        <div class="border-t pt-6 mb-8">
+            {% if iscritto %}
+                <!-- Già iscritto: mostra pulsante cancellazione -->
+                <div class="flex items-center justify-between bg-pi8-blue-light rounded-lg p-4">
+                    <span class="text-pi8-blue font-medium">✓ Sei iscritto a questa gara</span>
+                    {% if gara.iscrizioni_aperte %}
+                    <form method="POST" action="{{ url_for('gare.cancellati', gara_id=gara.id) }}"
+                          onsubmit="return confirm('Vuoi davvero cancellare la tua iscrizione?');">
+                        <button type="submit"
+                                class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition">
+                            Cancella Iscrizione
+                        </button>
+                    </form>
+                    {% else %}
+                    <span class="text-red-500 text-sm">Cancellazione non disponibile</span>
+                    {% endif %}
+                </div>
+            {% else %}
+                <!-- Non iscritto: mostra form iscrizione -->
+                {% if gara.iscrizioni_aperte %}
+                <form method="POST" action="{{ url_for('gare.iscriviti', gara_id=gara.id) }}" id="form-iscrizione">
+                    {% if gara.costo > 0 %}
+                    <!-- Modal pagamento inline -->
+                    <div class="bg-pi8-yellow-light rounded-lg p-6 border border-pi8-yellow">
+                        <h3 class="font-bold text-pi8-blue-dark mb-3">💳 Pagamento richiesto: {{ gara.costo|euro }}</h3>
+                        <p class="text-sm text-gray-600 mb-4">Seleziona il metodo di pagamento:</p>
+                        <div class="grid grid-cols-3 gap-3">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="metodo_pagamento" value="paypal" class="peer hidden" required>
+                                <div class="peer-checked:border-pi8-blue peer-checked:bg-pi8-blue-light border-2 border-gray-200 rounded-lg p-3 text-center transition hover:border-pi8-blue">
+                                    <div class="text-2xl mb-1">🅿️</div>
+                                    <span class="text-sm font-medium">PayPal</span>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="metodo_pagamento" value="carta" class="peer hidden">
+                                <div class="peer-checked:border-pi8-blue peer-checked:bg-pi8-blue-light border-2 border-gray-200 rounded-lg p-3 text-center transition hover:border-pi8-blue">
+                                    <div class="text-2xl mb-1">💳</div>
+                                    <span class="text-sm font-medium">Carta</span>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="metodo_pagamento" value="bonifico" class="peer hidden">
+                                <div class="peer-checked:border-pi8-blue peer-checked:bg-pi8-blue-light border-2 border-gray-200 rounded-lg p-3 text-center transition hover:border-pi8-blue">
+                                    <div class="text-2xl mb-1">🏦</div>
+                                    <span class="text-sm font-medium">Bonifico</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <button type="submit"
+                            class="mt-4 w-full bg-pi8-blue text-white py-3 rounded-lg font-medium hover:bg-pi8-blue-dark transition shadow-md text-lg">
+                        🏃 Iscrivimi!
+                    </button>
+                </form>
+                {% else %}
+                <div class="bg-gray-100 rounded-lg p-4 text-center text-gray-500">
+                    Le iscrizioni per questa gara sono chiuse (termine: {{ gara.data_ultima_iscrizione|data_it }})
+                </div>
+                {% endif %}
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Tabella Iscritti -->
+        <div>
+            <h2 class="text-xl font-bold text-gray-800 mb-4">👥 Lista Iscritti ({{ iscrizioni|length }})</h2>
+            {% if iscrizioni %}
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left font-medium text-gray-500">#</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-500">Tessera</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-500">Atleta</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-500">Taglia</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-500">Data Iscrizione</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-500">Pagamento</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% for isc in iscrizioni %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 text-gray-500">{{ loop.index }}</td>
+                            <td class="px-4 py-3 font-mono text-xs">{{ isc.atleta.tessera }}</td>
+                            <td class="px-4 py-3 font-medium">{{ isc.atleta.cognome }} {{ isc.atleta.nome }}</td>
+                            <td class="px-4 py-3">{{ isc.atleta.taglia_maglia or '-' }}</td>
+                            <td class="px-4 py-3">{{ isc.data_iscrizione|data_it }}</td>
+                            <td class="px-4 py-3">
+                                {% if isc.stato_pagamento == 'pagato' %}
+                                <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs">✓ Pagato</span>
+                                {% elif isc.stato_pagamento == 'non_richiesto' %}
+                                <span class="text-gray-400 text-xs">N/A</span>
+                                {% else %}
+                                <span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded text-xs">In attesa</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-gray-400 text-center py-6">Nessun iscritto ancora.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

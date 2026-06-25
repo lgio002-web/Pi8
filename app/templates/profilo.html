@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Profilo - ASD Pi8 Running{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <h1 class="text-3xl font-bold text-pi8-blue mb-6">👤 Il Mio Profilo</h1>
+
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <!-- Header profilo -->
+        <div class="bg-pi8-blue px-8 py-6 flex items-center space-x-6">
+            {% if current_user.foto_profilo %}
+            <img src="{{ url_for('static', filename='uploads/' + current_user.foto_profilo) }}"
+                 class="w-20 h-20 rounded-full border-4 border-pi8-yellow object-cover">
+            {% else %}
+            <div class="w-20 h-20 rounded-full bg-pi8-yellow flex items-center justify-center text-3xl font-bold text-pi8-blue-dark">
+                {{ current_user.nome[0] }}{{ current_user.cognome[0] }}
+            </div>
+            {% endif %}
+            <div>
+                <h2 class="text-xl font-bold text-white">{{ current_user.nome }} {{ current_user.cognome }}</h2>
+                <p class="text-blue-200">Tessera: {{ current_user.tessera }}</p>
+            </div>
+        </div>
+
+        <!-- Dettagli -->
+        <div class="p-8">
+            <div class="grid md:grid-cols-2 gap-4 text-sm">
+                <div class="space-y-3">
+                    <div>
+                        <span class="text-gray-500">📅 Data di Nascita</span>
+                        <p class="font-medium">{{ current_user.data_nascita|data_it }}</p>
+                    </div>
+                    <div>
+                        <span class="text-gray-500">📍 Luogo di Nascita</span>
+                        <p class="font-medium">{{ current_user.luogo_nascita or 'Non specificato' }}</p>
+                    </div>
+                    <div>
+                        <span class="text-gray-500">📧 Email</span>
+                        <p class="font-medium">{{ current_user.email }}</p>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <span class="text-gray-500">🏷️ Categoria</span>
+                        <p class="font-medium">{{ current_user.categoria or 'Non specificata' }}</p>
+                    </div>
+                    <div>
+                        <span class="text-gray-500">👕 Taglia Maglia</span>
+                        <p class="font-medium">{{ current_user.taglia_maglia or 'Non specificata' }}</p>
+                    </div>
+                    <div>
+                        <span class="text-gray-500">📋 Data Tesseramento</span>
+                        <p class="font-medium">{{ current_user.data_tesseramento|data_it if current_user.data_tesseramento else 'Non specificata' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Azioni -->
+            <div class="mt-8 flex space-x-3">
+                <a href="{{ url_for('atleta.modifica_profilo') }}"
+                   class="bg-pi8-blue text-white px-5 py-2 rounded-lg font-medium hover:bg-pi8-blue-dark transition">
+                    ✏️ Modifica Profilo
+                </a>
+                <a href="{{ url_for('atleta.cambia_password') }}"
+                   class="bg-gray-200 text-gray-700 px-5 py-2 rounded-lg font-medium hover:bg-gray-300 transition">
+                    🔒 Cambia Password
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

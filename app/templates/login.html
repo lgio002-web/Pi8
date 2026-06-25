@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Login - ASD Pi8 Running{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto mt-10">
+    <div class="bg-white rounded-2xl shadow-xl p-8 border-t-4 border-pi8-yellow">
+        <div class="text-center mb-8">
+            <img src="{{ url_for('static', filename='logo_pi8.png') }}" alt="Pi8 Running" class="h-20 w-20 mx-auto rounded-full mb-3">
+            <h1 class="text-3xl font-bold text-pi8-blue">Pi8 Running</h1>
+            <p class="text-gray-500 mt-2">Accedi al portale</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.login') }}" class="space-y-5">
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Numero Tessera</label>
+                <input type="text" id="email" name="email" required
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pi8-blue focus:border-transparent transition uppercase"
+                       placeholder="Es. LE065320 oppure pi8admin">
+            </div>
+
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <input type="password" id="password" name="password" required
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pi8-blue focus:border-transparent transition"
+                       placeholder="Il tuo numero tessera">
+            </div>
+
+            <button type="submit"
+                    class="w-full bg-pi8-blue text-white py-3 rounded-lg font-medium hover:bg-pi8-blue-dark transition shadow-md">
+                Accedi
+            </button>
+        </form>
+
+        <div class="mt-4 bg-blue-50 rounded-lg p-3 text-xs text-blue-800">
+            <strong>Come accedere:</strong> Dopo l'attivazione, username e password sono entrambi il tuo numero tessera (es. LE065320).
+        </div>
+
+        <div class="mt-6 text-center space-y-2">
+            <a href="{{ url_for('auth.primo_accesso') }}" class="text-pi8-blue hover:underline text-sm block">
+                🆕 Primo accesso? Attiva il tuo account
+            </a>
+            <a href="{{ url_for('atleta.nuovo_atleta') }}" class="text-gray-500 hover:text-pi8-blue text-sm block">
+                Non sei ancora tesserato? Richiedi l'iscrizione
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

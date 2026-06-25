@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ASD Pi8 Running{% endblock %}</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'pi8-yellow': '#FFC107',
+                        'pi8-yellow-light': '#FFF8E1',
+                        'pi8-yellow-dark': '#F57F17',
+                        'pi8-blue': '#1565C0',
+                        'pi8-blue-light': '#E3F2FD',
+                        'pi8-blue-dark': '#0D47A1',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Stile custom per il datepicker */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+        }
+        /* Animazione flash messages */
+        .flash-message {
+            animation: slideDown 0.3s ease-out;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pi8-blue-light via-pi8-yellow-light to-pi8-blue-light min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <nav class="bg-pi8-blue shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Logo e nome -->
+                <div class="flex items-center">
+                    <a href="{{ url_for('main.index') }}" class="flex items-center space-x-2">
+                        <img src="{{ url_for('static', filename='logo_pi8.png') }}" alt="Pi8 Running" class="h-12 w-12 rounded-full">
+                        <span class="text-xl font-bold text-pi8-yellow hidden sm:block">Pi8 Running</span>
+                    </a>
+                </div>
+
+                <!-- Menu navigazione -->
+                {% if current_user.is_authenticated %}
+                <div class="flex items-center space-x-4">
+                    {% if current_user.is_admin %}
+                        <a href="{{ url_for('admin.dashboard') }}" class="text-white hover:text-pi8-yellow transition">Dashboard</a>
+                        <a href="{{ url_for('gare.lista') }}" class="text-white hover:text-pi8-yellow transition">Gare</a>
+                        <a href="{{ url_for('admin.atleti') }}" class="text-white hover:text-pi8-yellow transition">Atleti</a>
+                        <a href="{{ url_for('admin.richieste') }}" class="text-white hover:text-pi8-yellow transition">Richieste</a>
+                    {% else %}
+                        <a href="{{ url_for('gare.lista') }}" class="text-white hover:text-pi8-yellow transition">Gare</a>
+                        <a href="{{ url_for('atleta.profilo') }}" class="text-white hover:text-pi8-yellow transition">Profilo</a>
+                    {% endif %}
+                    <div class="border-l border-blue-400 pl-4 flex items-center space-x-2">
+                        <span class="text-blue-200 text-sm">{{ current_user.nome if not current_user.is_admin else 'Admin' }}</span>
+                        <a href="{{ url_for('auth.logout') }}" class="bg-pi8-yellow text-pi8-blue-dark px-3 py-1 rounded-md text-sm font-medium hover:bg-yellow-300 transition">Esci</a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="flex items-center space-x-3">
+                    <a href="{{ url_for('atleta.nuovo_atleta') }}" class="text-white hover:text-pi8-yellow transition text-sm">Nuovo Atleta</a>
+                    <a href="{{ url_for('auth.login') }}" class="bg-pi8-yellow text-pi8-blue-dark px-4 py-2 rounded-md text-sm font-medium hover:bg-yellow-300 transition">Accedi</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="max-w-7xl mx-auto px-4 mt-4">
+        {% for category, message in messages %}
+        <div class="flash-message mb-2 p-4 rounded-lg flex items-center justify-between
+            {% if category == 'success' %}bg-green-100 text-green-800 border border-green-200
+            {% elif category == 'error' %}bg-red-100 text-red-800 border border-red-200
+            {% elif category == 'warning' %}bg-yellow-100 text-yellow-800 border border-yellow-200
+            {% else %}bg-blue-100 text-blue-800 border border-blue-200{% endif %}">
+            <span>{{ message }}</span>
+            <button onclick="this.parentElement.remove()" class="ml-4 text-lg font-bold opacity-50 hover:opacity-100">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Contenuto principale -->
+    <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-pi8-blue-dark text-white mt-auto border-t-4 border-pi8-yellow">
+        <div class="max-w-7xl mx-auto px-6 py-6">
+            <!-- Tre colonne -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+
+                <!-- Colonna 1: Info Associazione -->
+                <div>
+                    <div class="flex items-center space-x-2 mb-2">
+                        <img src="{{ url_for('static', filename='logo_pi8.png') }}" alt="Pi8 Running" class="h-8 w-8 rounded-full">
+                        <h3 class="font-bold text-pi8-yellow">ASD Pi8 Running</h3>
+                    </div>
+                    <ul class="space-y-1 text-xs text-gray-300">
+                        <li>📍 Via Andrea Mantegna, 113 — Roma</li>
+                        <li>🏛️ C.F. 97974490589</li>
+                    </ul>
+                    <!-- Social -->
+                    <div class="flex items-center space-x-3 mt-3">
+                        <a href="https://www.instagram.com/pi8.running" target="_blank" rel="noopener" class="hover:opacity-80 transition" title="Instagram">
+                            <svg class="w-5 h-5 text-gray-300 hover:text-pi8-yellow transition" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                        </a>
+                        <a href="https://www.facebook.com/pi8.running" target="_blank" rel="noopener" class="hover:opacity-80 transition" title="Facebook">
+                            <svg class="w-5 h-5 text-gray-300 hover:text-pi8-yellow transition" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Colonna 2: Contatti & Supporto -->
+                <div>
+                    <h3 class="font-bold text-pi8-yellow mb-2">Contatti &amp; Supporto</h3>
+                    <ul class="space-y-1 text-xs text-gray-300">
+                        <li><a href="mailto:pi8.running@gmail.com" class="hover:text-pi8-yellow transition">📧 pi8.running@gmail.com</a></li>
+                        <li><a href="mailto:pi8.running@gmail.com?subject=Richiesta%20Supporto%20Tecnico" class="hover:text-pi8-yellow transition">🛠️ Richiedi Supporto Tecnico</a></li>
+                    </ul>
+                </div>
+
+                <!-- Colonna 3: Area Legale -->
+                <div>
+                    <h3 class="font-bold text-pi8-yellow mb-2">Area Legale</h3>
+                    <ul class="space-y-1 text-xs text-gray-300">
+                        <li><a href="#" class="hover:text-pi8-yellow transition">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-pi8-yellow transition">Cookie Policy</a></li>
+                        <li><a href="#" class="hover:text-pi8-yellow transition">Termini e Condizioni</a></li>
+                        <li><a href="#" class="hover:text-pi8-yellow transition">Statuto ASD</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Separatore + Copyright -->
+            <div class="border-t border-white/20 mt-5 pt-3 text-center">
+                <p class="text-xs text-gray-400">&copy; 2026 ASD Pi8 Running &mdash; Tutti i diritti riservati.</p>
+            </div>
+        </div>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

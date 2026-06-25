@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Primo Accesso - ASD Pi8 Running{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto mt-10">
+    <div class="bg-white rounded-2xl shadow-xl p-8 border-t-4 border-pi8-yellow">
+        <div class="text-center mb-8">
+            <img src="{{ url_for('static', filename='logo_pi8.png') }}" alt="Pi8 Running" class="h-16 w-16 mx-auto rounded-full mb-3">
+            <h1 class="text-2xl font-bold text-pi8-blue">Attivazione Account</h1>
+            <p class="text-gray-500 mt-2">Inserisci i dati della tua tessera per attivare l'accesso</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.primo_accesso') }}" class="space-y-5">
+            <div>
+                <label for="tessera" class="block text-sm font-medium text-gray-700 mb-1">Numero Tessera</label>
+                <input type="text" id="tessera" name="tessera" required
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pi8-blue focus:border-transparent transition uppercase"
+                       placeholder="Es. LE065320">
+            </div>
+
+            <div>
+                <label for="cognome" class="block text-sm font-medium text-gray-700 mb-1">Cognome</label>
+                <input type="text" id="cognome" name="cognome" required
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pi8-blue focus:border-transparent transition uppercase"
+                       placeholder="Il tuo cognome">
+            </div>
+
+            <div>
+                <label for="data_nascita" class="block text-sm font-medium text-gray-700 mb-1">Data di Nascita</label>
+                <input type="date" id="data_nascita" name="data_nascita" required
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pi8-blue focus:border-transparent transition">
+            </div>
+
+            <button type="submit"
+                    class="w-full bg-pi8-yellow text-pi8-blue-dark py-3 rounded-lg font-medium hover:bg-yellow-400 transition shadow-md">
+                Verifica e Attiva
+            </button>
+        </form>
+
+        <div class="mt-4 bg-blue-50 rounded-lg p-3 text-xs text-blue-800">
+            <strong>Come funziona:</strong> Dopo la verifica, le tue credenziali saranno:<br>
+            Username = numero tessera, Password = numero tessera.<br>
+            L'account sarà attivo dal primo login.
+        </div>
+
+        <div class="mt-4 text-center">
+            <a href="{{ url_for('auth.login') }}" class="text-gray-500 hover:text-pi8-blue text-sm">
+                ← Torna al login
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

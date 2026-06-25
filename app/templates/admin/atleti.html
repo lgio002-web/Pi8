@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Gestione Atleti - ASD Pi8 Running{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="text-3xl font-bold text-pi8-blue">👥 Gestione Atleti</h1>
+        <p class="text-gray-500 mt-1">{{ atleti|length }} atleti registrati</p>
+    </div>
+    <a href="{{ url_for('admin.nuovo_atleta') }}"
+       class="bg-pi8-yellow text-pi8-blue-dark px-5 py-2 rounded-lg font-medium hover:bg-yellow-400 transition shadow">
+        + Nuovo Atleta
+    </a>
+</div>
+
+<div class="bg-white rounded-xl shadow-md overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="bg-pi8-blue text-white">
+                <tr>
+                    <th class="px-3 py-3 text-left font-medium">Tessera</th>
+                    <th class="px-3 py-3 text-left font-medium">Cognome</th>
+                    <th class="px-3 py-3 text-left font-medium">Nome</th>
+                    <th class="px-3 py-3 text-left font-medium">Data Nascita</th>
+                    <th class="px-3 py-3 text-left font-medium">Categoria</th>
+                    <th class="px-3 py-3 text-left font-medium">Taglia</th>
+                    <th class="px-3 py-3 text-left font-medium">Scad. Certificato</th>
+                    <th class="px-3 py-3 text-center font-medium">Accesso</th>
+                    <th class="px-3 py-3 text-center font-medium">Azioni</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for atleta in atleti %}
+                <tr class="hover:bg-pi8-yellow-light transition">
+                    <td class="px-3 py-3 font-mono text-xs font-bold">{{ atleta.tessera }}</td>
+                    <td class="px-3 py-3 font-medium">{{ atleta.cognome }}</td>
+                    <td class="px-3 py-3">{{ atleta.nome }}</td>
+                    <td class="px-3 py-3">{{ atleta.data_nascita|data_it }}</td>
+                    <td class="px-3 py-3 text-xs">{{ atleta.categoria or '-' }}</td>
+                    <td class="px-3 py-3 text-center">{{ atleta.taglia_maglia or '-' }}</td>
+                    <td class="px-3 py-3">
+                        {% if atleta.data_scadenza_certificato %}
+                            {% set oggi = now() %}
+                            {% if atleta.data_scadenza_certificato < oggi %}
+                            <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded text-xs font-medium">{{ atleta.data_scadenza_certificato|data_it }}</span>
+                            {% else %}
+                            <span class="text-green-700 text-xs">{{ atleta.data_scadenza_certificato|data_it }}</span>
+                            {% endif %}
+                        {% else %}
+                        <span class="text-gray-400 text-xs">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                        {% if atleta.attivo %}
+                        <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs font-medium">Attivo</span>
+                        {% elif atleta.password_hash %}
+                        <span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded text-xs font-medium" title="Ha verificato i dati ma non ha ancora fatto login">Verificato</span>
+                        {% else %}
+                        <span class="bg-gray-100 text-gray-500 px-2 py-0.5 rounded text-xs">Mai attivato</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                        <div class="flex justify-center space-x-1">
+                            <a href="{{ url_for('admin.modifica_atleta', tessera=atleta.tessera) }}"
+                               class="bg-pi8-blue text-white px-2 py-1 rounded text-xs hover:bg-pi8-blue-dark transition"
+                               title="Modifica">✏️</a>
+                            {% if atleta.password_hash %}
+                            <form method="POST" action="{{ url_for('admin.reset_attivazione', tessera=atleta.tessera) }}"
+                                  onsubmit="return confirm('Resettare attivazione di {{ atleta.cognome }} {{ atleta.nome }}? Dovrà rifare il primo accesso.');" class="inline">
+                                <button type="submit"
+                                        class="bg-yellow-500 text-white px-2 py-1 rounded text-xs hover:bg-yellow-600 transition"
+                                        title="Reset Attivazione">🔄</button>
+                            </form>
+                            {% endif %}
+                            <form method="POST" action="{{ url_for('admin.elimina_atleta', tessera=atleta.tessera) }}"
+                                  onsubmit="return confirm('Eliminare {{ atleta.cognome }} {{ atleta.nome }}?');" class="inline">
+                                <button type="submit"
+                                        class="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 transition"
+                                        title="Elimina">🗑️</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if not atleti %}
+<div class="text-center py-12 text-gray-400">
+    <p>Nessun atleta registrato.</p>
+</div>
+{% endif %}
+{% endblock %}
